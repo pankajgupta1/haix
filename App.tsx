@@ -5,12 +5,13 @@
  * @format
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
+  Text,
   useColorScheme,
   View,
 } from 'react-native';
@@ -19,15 +20,27 @@ import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
 
+import SocialSwitch from "./SocialSwitch"
+import Header from "./Header"
 import HashtagsGraph from "./HashtagsGraph"
 import SentimentsGraph from './SentimentsGraph';
 
 function App(): JSX.Element {
+  const [isInstagram, setIsInstagram] = useState(true)
+  const [showSentiments, setShowSentiments] = useState(true)
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  const onPressSwitchTab = (show: boolean) => {
+    setIsInstagram(show)
+  }
+
+  const onPressTab = (show: boolean) => {
+    setShowSentiments(show)
+  }
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -37,9 +50,14 @@ function App(): JSX.Element {
       />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic">
-        <View style={styles.graphsContainer}>
-          <SentimentsGraph />
-          <HashtagsGraph />
+        <SocialSwitch onPressTab={onPressSwitchTab} isInstagram={isInstagram} />
+        <Header onPressTab={onPressTab} showSentiments={showSentiments} />
+        {!isInstagram && <View style={styles.emptyContainer}>
+            <Text>Nothing to Display for Facebook!</Text>
+          </View>}
+        <View style={[styles.graphsContainer, !isInstagram && { height: 0}]}>
+          {showSentiments && <SentimentsGraph />}
+          {!showSentiments && <HashtagsGraph />}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -49,7 +67,15 @@ function App(): JSX.Element {
 const styles = StyleSheet.create({
   graphsContainer: {
     height: "50%",
-    width: '100%'
+    width: '100%',
+    marginTop: '10%',
+  },
+  emptyContainer: {
+    height: 500,
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });
 
